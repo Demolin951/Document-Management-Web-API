@@ -57,7 +57,7 @@ namespace DocumentApi.Migrations
                     b.HasIndex("UserId", "DocumentId")
                         .IsUnique();
 
-                    b.ToTable("Acseses");
+                    b.ToTable("Accesses");
                 });
 
             modelBuilder.Entity("DocumentApi.Models.DocumentVersion", b =>
@@ -65,6 +65,10 @@ namespace DocumentApi.Migrations
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
+
+                    b.Property<byte[]>("Data")
+                        .IsRequired()
+                        .HasColumnType("BLOB");
 
                     b.Property<int>("DocumentId")
                         .HasColumnType("INTEGER");
@@ -100,6 +104,28 @@ namespace DocumentApi.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Users");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            Name = "max"
+                        },
+                        new
+                        {
+                            Id = 2,
+                            Name = "anna"
+                        },
+                        new
+                        {
+                            Id = 3,
+                            Name = "tim"
+                        },
+                        new
+                        {
+                            Id = 4,
+                            Name = "bob"
+                        });
                 });
 
             modelBuilder.Entity("DocumentApi.Models.DocumentAccess", b =>
@@ -132,7 +158,7 @@ namespace DocumentApi.Migrations
                     b.HasOne("DocumentApi.Models.User", "UploadedByUser")
                         .WithMany("Versions")
                         .HasForeignKey("UploadedByUserId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.Navigation("Document");

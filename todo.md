@@ -16,16 +16,18 @@
 
 ## Phase 3 – Datenbank
 
-- [ ] Alte Migrationen löschen
-- [ ] Neue Migration erstellen
-- [ ] Datenbank updaten
-- [ ] Seed-User anlegen
+- [✅] Alte Migrationen löschen
+- [✅] Neue Migration erstellen
+- [✅] Datenbank updaten
+- [✅] Seed-User anlegen
 
 ## Phase 4 – Basis-Endpunkte
 
-- [ ] POST /api/document
+- [✅] POST /api/document
 - [ ] GET /api/document?username=...
-- [ ] GET /api/document?docId=...&username=...
+- [✅] GET /api/document?docId=...&username=...
+- [ ] Neue Migration erstellen
+- [ ] Datenbank updaten
 
 ## Phase 5 – Versionen
 

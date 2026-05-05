@@ -3,6 +3,9 @@ using DocumentApi.Models;
 using DocumentApi.Common;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using DocumentApi.Models.DTOs;
+using System.Runtime.CompilerServices;
+using System.Data;
 
 namespace DocumentApi.Controllers;
 
@@ -16,32 +19,15 @@ public class DocumentController : ControllerBase
         _context = context;
     }
 
-    [HttpGet]
-    public async Task<ActionResult<List<View>>> GetAll()
-    {
-        var documents = await _context.Documents
-            .Select(d => new View
-            {
-                Id = d.Id,
-                FileName = d.FileName,
-                ContentType = d.ContentType,
-                //UploadedAtUtc = d.UploadedAtUtc,
-                //UserId = d.UserId
-
-            })
-            .ToListAsync();
-
-        return Ok(documents);
-    }
-
-    [HttpPost("upload")]
+    [HttpPost]
     [Consumes("multipart/form-data")]
-    public async Task<ActionResult<View>> Upload([FromForm] UploadDocumentRequest request)
+    public async Task<IActionResult> UploadDocument([FromForm] UploadDocumentRequest request)
     {
-        if (request.File == null || request.File.Length == 0)
-        {
-            return BadRequest(ApiMessages.FileNotProvided);
-        }
+        var user = await _context.Users
+            .FirstOrDefaultAsync(x => x.Name == request.UserName);
+
+        if (user == null)
+            return NotFound("User not found");
 
         using var memoryStream = new MemoryStream();
         await request.File.CopyToAsync(memoryStream);
@@ -50,44 +36,62 @@ public class DocumentController : ControllerBase
         {
             FileName = request.File.FileName,
             ContentType = request.File.ContentType,
-            //Data = memoryStream.ToArray(),
-            //UploadedAtUtc = DateTime.UtcNow,
-            //UserId = request.UserId
+            CreatedAtUtc = DateTime.UtcNow
+        };
+
+        var version = new DocumentVersion
+        {
+            Document = document,
+            VersionNumber = 1,
+            Data = memoryStream.ToArray(),
+            UploadedAtUtc = DateTime.UtcNow,
+            UploadedByUserId = user.Id
         };
 
         _context.Documents.Add(document);
-        await _context.SaveChangesAsync();
+        _context.Versions.Add(version);
 
-        var owner = await _context.Users.FindAsync(request.UserId);
-
-        if (owner is null)
+        var access = new DocumentAccess
         {
-            return BadRequest("User not found");
-        }
-
-        var documentView = new View
-        {
-            Id = document.Id,
-            FileName = document.FileName,
-            ContentType = document.ContentType,
-            //UploadedAtUtc = document.UploadedAtUtc,
-            //UserId = document.UserId
+            User = user,
+            Document = document,
+            Role = Role.Owner
         };
 
-        return Ok(documentView);
+        _context.Accesses.Add(access);
+
+        await _context.SaveChangesAsync();
+
+        return Ok();
     }
+
+    [HttpGet]
+    public async Task<IActionResult> GetDocuments([FromQuery] string username, [FromQuery] int? docId)
+    {
+        var user = await _context.Users
+            .FirstOrDefaultAsync(x => x.Name == username);
+
+        var query = _context.Accesses
+            .Include(x => x.Document)
+            .Where(x => x.UserId == user.Id);
+
+        var documents = await query
+            .Select(x => new
+            {
+                x.Document.Id,
+                x.Document.FileName,
+                x.Document.CreatedAtUtc,
+                Rolle = x.Role.ToString()
+            })
+            .ToListAsync();
+
+        var access = await query
+            .FirstOrDefaultAsync(x => x.DocumentId == docId.Value);
+
+        if (access == null)
+            return Forbid();
+
+        return Ok(documents);
+    }
+
 }
-//[HttpGet("download/{id}")]
-//public async Task<ActionResult> Download(int id)
-//{
-//    var document = await _context.Documents.FindAsync(id);
-
-//    if (document == null)
-//    {
-//        return NotFound(ApiMessages.DocumentNotFound);
-//    }
-
-//return File(document.Data, document.ContentType, document.FileName);
-
-//}
-//}

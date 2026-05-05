@@ -1,3 +1,4 @@
+using System.Runtime.CompilerServices;
 using DocumentApi.Models;
 using Microsoft.EntityFrameworkCore;
 
@@ -13,7 +14,7 @@ public class AppDbContext : DbContext
 
     public DbSet<Document> Documents => Set<Document>();
     public DbSet<User> Users => Set<User>();
-    public DbSet<DocumentAccess> Acseses => Set<DocumentAccess>();
+    public DbSet<DocumentAccess> Accesses => Set<DocumentAccess>();
     public DbSet<DocumentVersion> Versions => Set<DocumentVersion>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -37,11 +38,24 @@ public class AppDbContext : DbContext
             .HasForeignKey(x => x.DocumentId)
             .OnDelete(DeleteBehavior.Cascade);
 
+        modelBuilder.Entity<DocumentVersion>()
+            .HasOne(x => x.UploadedByUser)
+            .WithMany(x => x.Versions)
+            .HasForeignKey(x => x.UploadedByUserId)
+            .OnDelete(DeleteBehavior.Restrict);
+
         modelBuilder.Entity<DocumentAccess>()
             .HasKey(x => new { x.UserId, x.DocumentId });
 
         modelBuilder.Entity<DocumentAccess>()
             .HasIndex(x => new { x.UserId, x.DocumentId })
             .IsUnique();
+
+        modelBuilder.Entity<User>().HasData(
+            new User { Id = 1, Name = "max" },
+            new User { Id = 2, Name = "anna" },
+            new User { Id = 3, Name = "tim" },
+            new User { Id = 4, Name = "bob" }
+        );
     }
 }
