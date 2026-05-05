@@ -24,12 +24,12 @@
 ## Phase 4 – Basis-Endpunkte
 
 - [✅] POST /api/document
-- [ ] GET /api/document?username=...
+- [✅] GET /api/document?username=...
 - [✅] GET /api/document?docId=...&username=...
 
 ## Phase 5 – Versionen
 
-- [ ] POST /api/document/versions
+- [✅] POST /api/document/versions
 - [ ] GET /api/document/versions
 - [ ] GET /api/document/versions/latest
 - [ ] GET /api/document/version

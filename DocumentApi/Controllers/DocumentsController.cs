@@ -1,12 +1,10 @@
 using DocumentApi.Data;
 using DocumentApi.Models;
-using DocumentApi.Common;
 using DocumentApi.Models.DTOs;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using System.Runtime.CompilerServices;
 using System.Data;
-using Microsoft.AspNetCore.Routing.Constraints;
+
 
 namespace DocumentApi.Controllers;
 
@@ -101,7 +99,7 @@ public class DocumentController : ControllerBase
         if (access == null)
             return Forbid();
 
-        var documentsAccess = new DocumentResponse
+        var response = new DocumentResponse
         {
             Id = access.DocumentId,
             FileName = access.Document.FileName,
@@ -109,7 +107,7 @@ public class DocumentController : ControllerBase
             Rolle = access.Role.ToString()
         };
 
-        return Ok(documentsAccess);
+        return Ok(response);
     }
 
 }
