@@ -1,11 +1,12 @@
 using DocumentApi.Data;
 using DocumentApi.Models;
 using DocumentApi.Common;
+using DocumentApi.Models.DTOs;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using DocumentApi.Models.DTOs;
 using System.Runtime.CompilerServices;
 using System.Data;
+using Microsoft.AspNetCore.Routing.Constraints;
 
 namespace DocumentApi.Controllers;
 
@@ -75,23 +76,40 @@ public class DocumentController : ControllerBase
             .Include(x => x.Document)
             .Where(x => x.UserId == user.Id);
 
-        var documents = await query
-            .Select(x => new
-            {
-                x.Document.Id,
-                x.Document.FileName,
-                x.Document.CreatedAtUtc,
-                Rolle = x.Role.ToString()
-            })
-            .ToListAsync();
+        if (docId == null)
+        {
+            var documents = await query
+                .Select(x => new DocumentResponse
+                {
+                    Id = x.Document.Id,
+                    FileName = x.Document.FileName,
+                    CreatedAtUtc = x.Document.CreatedAtUtc,
+                    Rolle = x.Role.ToString()
+                })
+                .ToListAsync();
+            return Ok(documents);
+        }
 
         var access = await query
             .FirstOrDefaultAsync(x => x.DocumentId == docId.Value);
 
         if (access == null)
+        {
+            return Forbid();
+        }
+
+        if (access == null)
             return Forbid();
 
-        return Ok(documents);
+        var documentsAccess = new DocumentResponse
+        {
+            Id = access.DocumentId,
+            FileName = access.Document.FileName,
+            CreatedAtUtc = access.Document.CreatedAtUtc,
+            Rolle = access.Role.ToString()
+        };
+
+        return Ok(documentsAccess);
     }
 
 }

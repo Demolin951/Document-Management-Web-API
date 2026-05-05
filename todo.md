@@ -26,8 +26,6 @@
 - [✅] POST /api/document
 - [ ] GET /api/document?username=...
 - [✅] GET /api/document?docId=...&username=...
-- [ ] Neue Migration erstellen
-- [ ] Datenbank updaten
 
 ## Phase 5 – Versionen
 
@@ -51,7 +49,7 @@
 
 ## Phase 8 – DTOs
 
-- [ ] CreateDocumentRequest anpassen
+- [✅] UploadDocumentRequest anpassen
 - [ ] AddDocumentVersionRequest erstellen
 - [ ] AddDocumentAccessRequest erstellen
 - [ ] ChangeDocumentRoleRequest erstellen

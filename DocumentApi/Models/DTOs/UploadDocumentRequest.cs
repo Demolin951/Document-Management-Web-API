@@ -1,5 +1,3 @@
-using Microsoft.AspNetCore.Http;
-
 namespace DocumentApi.Models.DTOs;
 
 public class UploadDocumentRequest
