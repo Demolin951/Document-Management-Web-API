@@ -1,6 +1,7 @@
 using DocumentApi.Data;
 using DocumentApi.Models;
 using DocumentApi.Models.DTOs;
+using DocumentApi.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Data;
@@ -13,17 +14,18 @@ namespace DocumentApi.Controllers;
 public class DocumentController : ControllerBase
 {
     private readonly AppDbContext _context;
-    public DocumentController(AppDbContext context)
+    private readonly AccessService _accessService;
+    public DocumentController(AppDbContext context, AccessService accessService)
     {
         _context = context;
+        _accessService = accessService;
     }
 
     [HttpPost]
     [Consumes("multipart/form-data")]
     public async Task<IActionResult> UploadDocument([FromForm] UploadDocumentRequest request)
     {
-        var user = await _context.Users
-            .FirstOrDefaultAsync(x => x.Name == request.UserName);
+        var user = await _accessService.FindUserByUserName(request.UserName);
 
         if (user == null)
             return NotFound("User not found");
@@ -67,8 +69,7 @@ public class DocumentController : ControllerBase
     [HttpGet]
     public async Task<IActionResult> GetDocuments([FromQuery] string username, [FromQuery] int? docId)
     {
-        var user = await _context.Users
-            .FirstOrDefaultAsync(x => x.Name == username);
+        var user = await _accessService.FindUserByUserName(username);
 
         var query = _context.Accesses
             .Include(x => x.Document)

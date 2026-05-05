@@ -1,6 +1,6 @@
 using DocumentApi.Data;
 using Microsoft.EntityFrameworkCore;
-
+using DocumentApi.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -9,6 +9,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddOpenApi();
 builder.Services.AddControllers();
 builder.Services.AddDbContext<AppDbContext>(options => options.UseSqlite("Data Source=documents.db"));
+builder.Services.AddScoped<AccessService>();
 
 var app = builder.Build();
 

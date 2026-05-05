@@ -1,11 +1,10 @@
 using DocumentApi.Data;
 using DocumentApi.Models;
 using DocumentApi.Models.DTOs;
+using DocumentApi.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using System.ComponentModel.DataAnnotations;
 using System.Data;
-using System.Reflection.Metadata.Ecma335;
 
 namespace DocumentApi.Controllers;
 
@@ -14,30 +13,28 @@ namespace DocumentApi.Controllers;
 public class VersionsController : ControllerBase
 {
     private readonly AppDbContext _context;
-    public VersionsController(AppDbContext context)
+    private readonly AccessService _accessService;
+    public VersionsController(AppDbContext context, AccessService accessService)
     {
         _context = context;
+        _accessService = accessService;
     }
 
     [HttpPost("{documentId:int}/versions")]
     [Consumes("multipart/form-data")]
     public async Task<IActionResult> AddVersion([FromRoute] int documentId, [FromForm] AddDocumentVersionRequest request)
     {
-        var user = await _context.Users
-            .FirstOrDefaultAsync(x => x.Name == request.UserName);
+        var user = await _accessService.FindUserByUserName(request.UserName);
 
         if (user == null)
             return NotFound("User not found");
 
-        var access = await _context.Accesses
-            .FirstOrDefaultAsync(x =>
-                x.UserId == user.Id &&
-                x.DocumentId == documentId);
+        var access = await _accessService.FindAccess(user.Id, documentId);
 
         if (access == null)
             return StatusCode(403, "Access denied");
 
-        if (access.Role != Role.Owner && access.Role != Role.Editor)
+        if (!_accessService.IsEditorOrOwner(access))
             return StatusCode(403, "Only owner or editor can upload new versions");
 
         var latestVersionNumber = await _context.Versions

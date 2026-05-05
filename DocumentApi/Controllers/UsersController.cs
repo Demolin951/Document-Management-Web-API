@@ -2,6 +2,7 @@ using DocumentApi.Data;
 using DocumentApi.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using DocumentApi.Models.DTOs;
 
 namespace DocumentApi.Controllers;
 

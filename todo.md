@@ -50,7 +50,7 @@
 ## Phase 8 – DTOs
 
 - [✅] UploadDocumentRequest anpassen
-- [ ] AddDocumentVersionRequest erstellen
+- [✅] AddDocumentVersionRequest erstellen
 - [ ] AddDocumentAccessRequest erstellen
 - [ ] ChangeDocumentRoleRequest erstellen
 - [ ] TransferOwnerRequest erstellen

@@ -1,4 +1,4 @@
-namespace DocumentApi.Models;
+namespace DocumentApi.Models.DTOs;
 
 public class CreateUserRequest
 {
