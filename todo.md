@@ -41,26 +41,26 @@
 - [✅] GetLatestVersionNumber
 - [✅] GetLatestVersionWithDocument
 - [✅] GetLatestVersionWithDocument
-- [🔄] CheckAccess with AccessCheckResult
+- [✅] CheckAccess with AccessCheckResult
 
 ## Phase 6 – Zugriffsrechte
 
-- [ ] GET /api/document/access
-- [ ] POST /api/document/access
-- [ ] PUT /api/document/access
-- [ ] DELETE /api/document/access
+- [✅] GET /api/document/access
+- [✅] POST /api/document/access
+- [✅] PUT /api/document/access
+- [✅] DELETE /api/document/access
 
 ## Phase 7 – Owner-Transfer
 
-- [ ] PUT /api/document/owner
+- [🔄] PUT /api/document/owner
 
 ## Phase 8 – DTOs
 
 - [✅] UploadDocumentRequest anpassen
 - [✅] AddDocumentVersionRequest erstellen
-- [🔄] AddDocumentAccessRequest erstellen
-- [ ] ChangeDocumentRoleRequest erstellen
-- [ ] TransferOwnerRequest erstellen
+- [✅] AddDocumentAccessRequest erstellen
+- [✅] ChangeDocumentRoleRequest erstellen
+- [🔄] TransferOwnerRequest erstellen
 
 ## Phase 9 – Hilfsmethoden/Services
 
