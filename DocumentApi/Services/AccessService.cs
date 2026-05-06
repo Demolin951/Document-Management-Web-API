@@ -36,4 +36,28 @@ public class AccessService
     {
         return access.Role == Role.Owner || access.Role == Role.Editor;
     }
+
+    public async Task<AccessCheckResult> CheckAccess(string userName, int documentId)
+    {
+        var user = await FindUserByUserName(userName);
+
+        if (user == null)
+        {
+            return new AccessCheckResult
+            {
+                UserExists = false,
+                HasAccess = false
+            };
+        }
+
+        var access = await FindAccess(user.Id, documentId);
+
+        return new AccessCheckResult
+        {
+            UserExists = true,
+            HasAccess = access != null,
+            User = user,
+            Access = access
+        };
+    }
 }
