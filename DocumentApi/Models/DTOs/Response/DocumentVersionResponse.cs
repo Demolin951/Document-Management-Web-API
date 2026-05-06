@@ -11,5 +11,5 @@ public class DocumentVersionResponse
     public DateTime UploadedAtUtc { get; set; }
 
     public string UploadedBy { get; set; } = string.Empty;
-    public string FileName { get; set; } = string.Empty;
+
 }

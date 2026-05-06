@@ -10,7 +10,7 @@ using System.Data;
 namespace DocumentApi.Controllers;
 
 [ApiController]
-[Route("api/[controller]")]
+[Route("api/document")]
 public class DocumentController : ControllerBase
 {
     private readonly AppDbContext _context;
@@ -70,6 +70,9 @@ public class DocumentController : ControllerBase
     public async Task<IActionResult> GetDocuments([FromQuery] string username, [FromQuery] int? docId)
     {
         var user = await _accessService.FindUserByUserName(username);
+
+        if (user == null)
+            return NotFound("User not found");
 
         var query = _context.Accesses
             .Include(x => x.Document)

@@ -36,6 +36,13 @@
 - [✅] GET /api/document/version/download/latest
 - [✅] GET /api/document/version/download
 
+## Phase 5.1 - Version Service
+
+- [✅] GetLatestVersionNumber
+- [✅] GetLatestVersionWithDocument
+- [✅] GetLatestVersionWithDocument
+- [🔄] CheckAccess with AccessCheckResult
+
 ## Phase 6 – Zugriffsrechte
 
 - [ ] GET /api/document/access

@@ -10,6 +10,7 @@ builder.Services.AddOpenApi();
 builder.Services.AddControllers();
 builder.Services.AddDbContext<AppDbContext>(options => options.UseSqlite("Data Source=documents.db"));
 builder.Services.AddScoped<AccessService>();
+builder.Services.AddScoped<VersionService>();
 
 var app = builder.Build();
 

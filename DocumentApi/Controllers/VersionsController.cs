@@ -14,10 +14,12 @@ public class VersionsController : ControllerBase
 {
     private readonly AppDbContext _context;
     private readonly AccessService _accessService;
-    public VersionsController(AppDbContext context, AccessService accessService)
+    private readonly VersionService _versionService;
+    public VersionsController(AppDbContext context, AccessService accessService, VersionService versionService)
     {
         _context = context;
         _accessService = accessService;
+        _versionService = versionService;
     }
 
     [HttpPost("{documentId:int}/version")]
@@ -37,9 +39,7 @@ public class VersionsController : ControllerBase
         if (!_accessService.IsEditorOrOwner(access))
             return StatusCode(403, "Only owner or editor can upload new versions");
 
-        var latestVersionNumber = await _context.Versions
-            .Where(x => x.DocumentId == documentId)
-            .MaxAsync(x => (int?)x.VersionNumber) ?? 0;
+        var latestVersionNumber = await _versionService.GetLatestVersionNumber(documentId);
 
         using var memoryStream = new MemoryStream();
         await request.File.CopyToAsync(memoryStream);
@@ -91,15 +91,14 @@ public class VersionsController : ControllerBase
                 DocumentId = x.DocumentId,
                 VersionNumber = x.VersionNumber,
                 UploadedAtUtc = x.UploadedAtUtc,
-                UploadedBy = x.UploadedByUser.Name,
-                FileName = x.Document.FileName
+                UploadedBy = x.UploadedByUser.Name
             })
             .ToListAsync();
 
         return Ok(versions);
     }
 
-    [HttpGet("{documentId:int}/versions/latest")]
+    [HttpGet("{documentId:int}/version/latest")]
     public async Task<IActionResult> GetLatestVersion([FromRoute] int documentId, [FromQuery] string username)
     {
         var user = await _accessService.FindUserByUserName(username);
@@ -177,11 +176,7 @@ public class VersionsController : ControllerBase
         if (access == null)
             return StatusCode(403, "Access denied");
 
-        var version = await _context.Versions
-            .Include(x => x.Document)
-            .Where(x => x.DocumentId == documentId)
-            .OrderByDescending(x => x.VersionNumber)
-            .FirstOrDefaultAsync();
+        var version = await _versionService.GetLatestVersionWithDocument(documentId);
 
         if (version == null)
             return NotFound("No version found");
@@ -191,7 +186,7 @@ public class VersionsController : ControllerBase
         return result;
     }
 
-    [HttpGet("{documentId:int}/version/download/{versionNumber:int}")]
+    [HttpGet("{documentId:int}/version/{versionNumber:int}/download")]
     public async Task<IActionResult> DownloadVersion([FromRoute] int documentId, [FromRoute] int versionNumber, [FromQuery] string username)
     {
         var user = await _accessService.FindUserByUserName(username);
@@ -204,10 +199,7 @@ public class VersionsController : ControllerBase
         if (access == null)
             return StatusCode(403, "Access denied");
 
-        var version = await _context.Versions
-            .Include(x => x.Document)
-            .Where(x => x.DocumentId == documentId && x.VersionNumber == versionNumber)
-            .FirstOrDefaultAsync();
+        var version = await _versionService.GetVersionWithDocument(documentId, versionNumber);
 
         if (version == null)
             return NotFound("No version found");
