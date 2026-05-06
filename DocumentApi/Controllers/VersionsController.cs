@@ -68,4 +68,33 @@ public class VersionsController : ControllerBase
         return Ok(response);
     }
 
+    [HttpGet("{documentId:int}/versions")]
+    public async Task<IActionResult> GetVersions([FromRoute] int documentId, [FromQuery] string username)
+    {
+        var user = await _accessService.FindUserByUserName(username);
+
+        if (user == null)
+            return NotFound("User not found");
+
+        var access = await _accessService.FindAccess(user.Id, documentId);
+
+        if (access == null)
+            return StatusCode(403, "Access denied");
+
+        var versions = await _context.Versions
+            .Include(x => x.UploadedByUser)
+            .Where(x => x.DocumentId == documentId)
+            .OrderByDescending(x => x.VersionNumber)
+            .Select(x => new DocumentVersionResponse
+            {
+                Id = x.Id,
+                DocumentId = x.DocumentId,
+                VersionNumber = x.VersionNumber,
+                UploadedAtUtc = x.UploadedAtUtc,
+                UploadedBy = x.UploadedByUser.Name
+            })
+            .ToListAsync();
+
+        return Ok(versions);
+    }
 }

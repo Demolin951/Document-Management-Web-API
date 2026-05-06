@@ -30,8 +30,8 @@
 ## Phase 5 – Versionen
 
 - [✅] POST /api/document/versions
-- [ ] GET /api/document/versions
-- [ ] GET /api/document/versions/latest
+- [✅] GET /api/document/versions
+- [🔄] GET /api/document/versions/latest
 - [ ] GET /api/document/version
 - [ ] GET /api/document/download
 - [ ] GET /api/document/version/download
@@ -51,17 +51,17 @@
 
 - [✅] UploadDocumentRequest anpassen
 - [✅] AddDocumentVersionRequest erstellen
-- [ ] AddDocumentAccessRequest erstellen
+- [🔄] AddDocumentAccessRequest erstellen
 - [ ] ChangeDocumentRoleRequest erstellen
 - [ ] TransferOwnerRequest erstellen
 
-## Phase 9 – Hilfsmethoden
+## Phase 9 – Hilfsmethoden/Services
 
-- [ ] FindUserByUserName
-- [ ] HasAccess
-- [ ] IsOwner
-- [ ] IsEditorOrOwner
-      ...
+- [✅] FindUserByUserName
+- [✅] HasAccess
+- [✅] IsOwner
+- [✅] IsEditorOrOwner
+  ...
 
 ## Phase 10 – Tests
 
@@ -69,9 +69,10 @@
 - [ ] Fehlercodes prüfen
 
 Legenda:
-✅
-❌
-🔄
-⭐
-🔥
-❗
+✅ - Fertig
+🔄 - Im Prozess
+
+❌ - eigene Zeichen
+⭐ - eigene Zeichen
+🔥 - eigene Zeichen
+❗ - eigene Zeichen
