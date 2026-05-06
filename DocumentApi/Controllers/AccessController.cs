@@ -169,4 +169,56 @@ public class AccessController : ControllerBase
 
         return Ok("Access deleted");
     }
+
+    [HttpPut("{documentId:int}/owner")]
+    public async Task<IActionResult> TransferOwner([FromRoute] int documentId, [FromBody] TransferOwnerRequest request)
+    {
+        var currentOwnerCheck = await _accessService.CheckAccess(request.CurrentOwnerUserName, documentId);
+
+        if (!currentOwnerCheck.UserExists)
+            return NotFound("Current owner not found");
+
+        if (!currentOwnerCheck.HasAccess)
+            return StatusCode(403, "Current user has no access");
+
+        if (!_accessService.IsOwner(currentOwnerCheck.Access!))
+            return StatusCode(403, "Only owner can trasfer ownership");
+
+        var newOwner = await _accessService.FindUserByUserName(request.NewOwnerUserName);
+
+        if (newOwner == null)
+            return NotFound("New owner not found");
+
+        var newOwnerAccess = await _accessService.FindAccess(newOwner.Id, documentId);
+
+        if (newOwnerAccess == null)
+        {
+            newOwnerAccess = new DocumentAccess
+            {
+                UserId = newOwner.Id,
+                DocumentId = documentId,
+                Role = Role.Owner
+            };
+
+            _context.Accesses.Add(newOwnerAccess);
+        }
+        else
+        {
+            newOwnerAccess.Role = Role.Owner;
+        }
+
+        currentOwnerCheck.Access!.Role = Role.Editor;
+
+        await _context.SaveChangesAsync();
+
+        var response = new TransferOwnerResponse
+        {
+            PreviousOwner = request.CurrentOwnerUserName,
+            NewOwner = request.NewOwnerUserName,
+            DocumentId = documentId
+        };
+
+        return Ok(response);
+
+    }
 }
