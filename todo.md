@@ -29,12 +29,12 @@
 
 ## Phase 5 – Versionen
 
-- [✅] POST /api/document/versions
-- [✅] GET /api/document/versions
-- [🔄] GET /api/document/versions/latest
-- [ ] GET /api/document/version
-- [ ] GET /api/document/download
-- [ ] GET /api/document/version/download
+- [✅] POST /api/document/version
+- [✅] GET /api/document/version/all
+- [✅] GET /api/document/version/latest
+- [✅] GET /api/document/version
+- [✅] GET /api/document/version/download/latest
+- [✅] GET /api/document/version/download
 
 ## Phase 6 – Zugriffsrechte
 
