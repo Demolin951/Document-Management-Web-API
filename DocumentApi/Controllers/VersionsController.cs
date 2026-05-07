@@ -1,3 +1,4 @@
+using DocumentApi.Common;
 using DocumentApi.Data;
 using DocumentApi.Models;
 using DocumentApi.Models.DTOs;
@@ -10,7 +11,7 @@ namespace DocumentApi.Controllers;
 
 [ApiController]
 [Route("api/document")]
-public class VersionsController : ControllerBase
+public class VersionsController : ApiController
 {
     private readonly AppDbContext _context;
     private readonly AccessService _accessService;
@@ -28,14 +29,13 @@ public class VersionsController : ControllerBase
     {
         var accessResult = await _accessService.CheckAccess(request.UserName, documentId);
 
-        if (!accessResult.UserExists)
-            return NotFound("User not found");
-
-        if (!accessResult.HasAccess)
-            return StatusCode(403, "Access denied");
+        if (TryGetAccessError(accessResult, out var error))
+        {
+            return error!;
+        }
 
         if (!_accessService.IsEditorOrOwner(accessResult.Access!))
-            return StatusCode(403, "Only owner or editor can upload new versions");
+            return ApiResponse.OnlyOwnerOrEditor();
 
         var user = accessResult.User!;
 
@@ -73,11 +73,10 @@ public class VersionsController : ControllerBase
     {
         var accessResult = await _accessService.CheckAccess(username, documentId);
 
-        if (!accessResult.UserExists)
-            return NotFound("User not found");
-
-        if (!accessResult.HasAccess)
-            return StatusCode(403, "Access denied");
+        if (TryGetAccessError(accessResult, out var error))
+        {
+            return error!;
+        }
 
         var versions = await _context.Versions
             .Include(x => x.UploadedByUser)
@@ -101,11 +100,10 @@ public class VersionsController : ControllerBase
     {
         var accessResult = await _accessService.CheckAccess(username, documentId);
 
-        if (!accessResult.UserExists)
-            return NotFound("User not found");
-
-        if (!accessResult.HasAccess)
-            return StatusCode(403, "Access denied");
+        if (TryGetAccessError(accessResult, out var error))
+        {
+            return error!;
+        }
 
         var latestVersion = await _context.Versions
             .Include(x => x.UploadedByUser)
@@ -122,7 +120,7 @@ public class VersionsController : ControllerBase
             .FirstOrDefaultAsync();
 
         if (latestVersion == null)
-            return NotFound("No version found");
+            return ApiResponse.NoVersionFound();
 
         return Ok(latestVersion);
     }
@@ -132,11 +130,10 @@ public class VersionsController : ControllerBase
     {
         var accessResult = await _accessService.CheckAccess(username, documentId);
 
-        if (!accessResult.UserExists)
-            return NotFound("User not found");
-
-        if (!accessResult.HasAccess)
-            return StatusCode(403, "Access denied");
+        if (TryGetAccessError(accessResult, out var error))
+        {
+            return error!;
+        }
 
         var version = await _context.Versions
             .Include(x => x.UploadedByUser)
@@ -152,7 +149,7 @@ public class VersionsController : ControllerBase
             .FirstOrDefaultAsync();
 
         if (version == null)
-            return NotFound("No version found");
+            return ApiResponse.NoVersionFound();
 
         return Ok(version);
     }
@@ -162,16 +159,15 @@ public class VersionsController : ControllerBase
     {
         var accessResult = await _accessService.CheckAccess(username, documentId);
 
-        if (!accessResult.UserExists)
-            return NotFound("User not found");
-
-        if (!accessResult.HasAccess)
-            return StatusCode(403, "Access denied");
+        if (TryGetAccessError(accessResult, out var error))
+        {
+            return error!;
+        }
 
         var version = await _versionService.GetLatestVersionWithDocument(documentId);
 
         if (version == null)
-            return NotFound("No version found");
+            return ApiResponse.NoVersionFound();
 
         var result = File(version.Data, version.Document.ContentType, version.Document.FileName);
 
@@ -183,16 +179,15 @@ public class VersionsController : ControllerBase
     {
         var accessResult = await _accessService.CheckAccess(username, documentId);
 
-        if (!accessResult.UserExists)
-            return NotFound("User not found");
-
-        if (!accessResult.HasAccess)
-            return StatusCode(403, "Access denied");
+        if (TryGetAccessError(accessResult, out var error))
+        {
+            return error!;
+        }
 
         var version = await _versionService.GetVersionWithDocument(documentId, versionNumber);
 
         if (version == null)
-            return NotFound("No version found");
+            return ApiResponse.NoVersionFound();
 
         var result = File(version.Data, version.Document.ContentType, version.Document.FileName);
 

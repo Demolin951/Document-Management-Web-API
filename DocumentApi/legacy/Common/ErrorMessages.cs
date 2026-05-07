@@ -21,4 +21,6 @@ public static class ErrorMessage
     public const string OnlyOwnerCanDeleteAccess = "Only owner can delete access";
     public const string CanNotDeleteOwnerAccess = "Can not delete owner access";
     public const string NewOwnerNotFound = "New owner not found";
+    public const string OnlyOwnerOrEditor = "Only owner or editor can upload new versions";
+    public const string NoVersionFound = "No version found";
 }

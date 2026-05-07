@@ -3,6 +3,7 @@ using DocumentApi.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using DocumentApi.Models.DTOs;
+using DocumentApi.Common;
 
 namespace DocumentApi.Controllers;
 
@@ -45,7 +46,7 @@ public class UserController : ControllerBase
 
         if (user is null)
         {
-            return NotFound();
+            return ApiResponse.UserNotFound();
         }
 
         _context.Users.Remove(user);

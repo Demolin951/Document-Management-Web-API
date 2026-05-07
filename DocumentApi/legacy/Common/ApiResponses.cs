@@ -14,6 +14,11 @@ public static class ApiResponse
         return new NotFoundObjectResult(ErrorMessage.CurrentOwnerNotFound);
     }
 
+    public static NotFoundObjectResult NoVersionFound()
+    {
+        return new NotFoundObjectResult(ErrorMessage.NoVersionFound);
+    }
+
     public static NotFoundObjectResult NewOwnerNotFound()
     {
         return new NotFoundObjectResult(ErrorMessage.NewOwnerNotFound);
@@ -37,6 +42,14 @@ public static class ApiResponse
     public static ObjectResult AccessDenied()
     {
         return new ObjectResult(ErrorMessage.AccessDenied)
+        {
+            StatusCode = 403
+        };
+    }
+
+        public static ObjectResult OnlyOwnerOrEditor()
+    {
+        return new ObjectResult(ErrorMessage.OnlyOwnerOrEditor)
         {
             StatusCode = 403
         };

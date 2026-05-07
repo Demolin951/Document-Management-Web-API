@@ -1,3 +1,4 @@
+using DocumentApi.Common;
 using DocumentApi.Data;
 using DocumentApi.Models;
 using DocumentApi.Models.DTOs;
@@ -28,11 +29,11 @@ public class DocumentController : ControllerBase
         var user = await _accessService.FindUserByUserName(request.UserName);
 
         if (user == null)
-            return NotFound("User not found");
+            return ApiResponse.UserNotFound();
 
         if (request.File == null || request.File.Length == 0)
         {
-            return BadRequest("File is required");
+            return ApiResponse.FileIsRequired();
         }
 
         using var memoryStream = new MemoryStream();
@@ -77,7 +78,7 @@ public class DocumentController : ControllerBase
         var user = await _accessService.FindUserByUserName(username);
 
         if (user == null)
-            return NotFound("User not found");
+            return ApiResponse.UserNotFound();
 
         var query = _context.Accesses
             .Include(x => x.Document)
@@ -101,7 +102,7 @@ public class DocumentController : ControllerBase
             .FirstOrDefaultAsync(x => x.DocumentId == docId.Value);
 
         if (access == null)
-            return StatusCode(403, "Access denied");
+            return ApiResponse.AccessDenied();
 
         var response = new DocumentResponse
         {
