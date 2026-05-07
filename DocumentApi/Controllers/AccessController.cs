@@ -12,7 +12,7 @@ namespace DocumentApi.Controllers;
 
 [ApiController]
 [Route("api/document")]
-public class AccessController : ApiController
+public class AccessController : ApiControllerBase
 {
     private readonly AppDbContext _context;
     private readonly AccessService _accessService;

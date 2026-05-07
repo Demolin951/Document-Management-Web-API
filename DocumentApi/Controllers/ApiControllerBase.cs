@@ -5,7 +5,7 @@ using Microsoft.OpenApi.MicrosoftExtensions;
 
 namespace DocumentApi.Controllers;
 
-public abstract class ApiController : ControllerBase
+public abstract class ApiControllerBase : ControllerBase
 {
     protected bool TryGetAccessError(
         AccessCheckResult accessResult,
