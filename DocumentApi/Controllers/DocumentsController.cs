@@ -30,6 +30,11 @@ public class DocumentController : ControllerBase
         if (user == null)
             return NotFound("User not found");
 
+        if (request.File == null || request.File.Length == 0)
+        {
+            return BadRequest("File is required");
+        }
+
         using var memoryStream = new MemoryStream();
         await request.File.CopyToAsync(memoryStream);
 
@@ -97,11 +102,11 @@ public class DocumentController : ControllerBase
 
         if (access == null)
         {
-            return Forbid();
+            return StatusCode(403, "Access denied");
         }
 
         if (access == null)
-            return Forbid();
+            return StatusCode(403, "Access denied");
 
         var response = new DocumentResponse
         {

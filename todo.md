@@ -52,7 +52,7 @@
 
 ## Phase 7 – Owner-Transfer
 
-- [🔄] PUT /api/document/owner
+- [✅] PUT /api/document/owner
 
 ## Phase 8 – DTOs
 
@@ -60,7 +60,7 @@
 - [✅] AddDocumentVersionRequest erstellen
 - [✅] AddDocumentAccessRequest erstellen
 - [✅] ChangeDocumentRoleRequest erstellen
-- [🔄] TransferOwnerRequest erstellen
+- [✅] TransferOwnerRequest erstellen
 
 ## Phase 9 – Hilfsmethoden/Services
 
@@ -72,8 +72,8 @@
 
 ## Phase 10 – Tests
 
-- [ ] Testfälle durchgehen
-- [ ] Fehlercodes prüfen
+- [✅] Testfälle durchgehen
+- [✅] Fehlercodes prüfen
 
 Legenda:
 ✅ - Fertig
