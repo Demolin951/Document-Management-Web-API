@@ -100,6 +100,11 @@ public static class ApiResponse
         return new BadRequestObjectResult(ErrorMessage.FileIsRequired);
     }
 
+    public static BadRequestObjectResult OwnerRoleCanOnlyBeAssighnedByTransfer()
+    {
+        return new BadRequestObjectResult(ErrorMessage.OwnerRoleCanOnlyBeAssighnedByTransfer);
+    }
+
     public static BadRequestObjectResult CanNotDeleteOwnerAccess()
     {
         return new BadRequestObjectResult(ErrorMessage.CanNotDeleteOwnerAccess);

@@ -92,7 +92,7 @@ public class DocumentController : ControllerBase
                     Id = x.Document.Id,
                     FileName = x.Document.FileName,
                     CreatedAtUtc = x.Document.CreatedAtUtc,
-                    Rolle = x.Role.ToString()
+                    Role = x.Role.ToString()
                 })
                 .ToListAsync();
             return Ok(documents);
@@ -109,7 +109,7 @@ public class DocumentController : ControllerBase
             Id = access.DocumentId,
             FileName = access.Document.FileName,
             CreatedAtUtc = access.Document.CreatedAtUtc,
-            Rolle = access.Role.ToString()
+            Role = access.Role.ToString()
         };
 
         return Ok(response);

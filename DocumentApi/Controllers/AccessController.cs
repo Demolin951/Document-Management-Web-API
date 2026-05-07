@@ -6,6 +6,7 @@ using DocumentApi.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Data;
+using System.Reflection.Metadata.Ecma335;
 
 namespace DocumentApi.Controllers;
 
@@ -59,6 +60,11 @@ public class AccessController : ApiController
             return error!;
         }
 
+        if (request.Role == Role.Owner)
+        {
+            return ApiResponse.OwnerRoleCanOnlyBeAssighnedByTransfer();
+        }
+
         if (!_accessService.IsOwner(ownerCheck.Access!))
             return ApiResponse.OnlyOwnerCanAddAccess();
 
@@ -101,6 +107,11 @@ public class AccessController : ApiController
         if (TryGetAccessError(ownerCheck, out var error))
         {
             return error!;
+        }
+
+        if (request.Role == Role.Owner)
+        {
+            return ApiResponse.OwnerRoleCanOnlyBeAssighnedByTransfer();
         }
 
         if (!_accessService.IsOwner(ownerCheck.Access!))
@@ -190,20 +201,10 @@ public class AccessController : ApiController
 
         if (newOwnerAccess == null)
         {
-            newOwnerAccess = new DocumentAccess
-            {
-                UserId = newOwner.Id,
-                DocumentId = documentId,
-                Role = Role.Owner
-            };
-
-            _context.Accesses.Add(newOwnerAccess);
-        }
-        else
-        {
-            newOwnerAccess.Role = Role.Owner;
+            return ApiResponse.NewOwnerHasNoAccess();
         }
 
+        newOwnerAccess.Role = Role.Owner;
         currentOwnerCheck.Access!.Role = Role.Editor;
 
         await _context.SaveChangesAsync();

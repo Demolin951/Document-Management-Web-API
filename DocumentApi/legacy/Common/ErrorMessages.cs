@@ -23,4 +23,5 @@ public static class ErrorMessage
     public const string NewOwnerNotFound = "New owner not found";
     public const string OnlyOwnerOrEditor = "Only owner or editor can upload new versions";
     public const string NoVersionFound = "No version found";
+    public const string OwnerRoleCanOnlyBeAssighnedByTransfer = "Owner role can only be assigned by ownership transfer";
 }

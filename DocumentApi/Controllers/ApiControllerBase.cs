@@ -21,7 +21,6 @@ public abstract class ApiController : ControllerBase
             return true;
         }
 
-
         if (!accessResult.HasAccess)
         {
             error = ApiResponse.Forbidden(accessDeniedMessage);
