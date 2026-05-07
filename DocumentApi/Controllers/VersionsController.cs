@@ -78,19 +78,7 @@ public class VersionsController : ApiControllerBase
             return error!;
         }
 
-        var versions = await _context.Versions
-            .Include(x => x.UploadedByUser)
-            .Where(x => x.DocumentId == documentId)
-            .OrderByDescending(x => x.VersionNumber)
-            .Select(x => new DocumentVersionResponse
-            {
-                Id = x.Id,
-                DocumentId = x.DocumentId,
-                VersionNumber = x.VersionNumber,
-                UploadedAtUtc = x.UploadedAtUtc,
-                UploadedBy = x.UploadedByUser.Name
-            })
-            .ToListAsync();
+        var versions = await _versionService.GetVersions(documentId);
 
         return Ok(versions);
     }
@@ -105,19 +93,7 @@ public class VersionsController : ApiControllerBase
             return error!;
         }
 
-        var latestVersion = await _context.Versions
-            .Include(x => x.UploadedByUser)
-            .Where(x => x.DocumentId == documentId)
-            .OrderByDescending(x => x.VersionNumber)
-            .Select(x => new DocumentVersionResponse
-            {
-                Id = x.Id,
-                DocumentId = x.DocumentId,
-                VersionNumber = x.VersionNumber,
-                UploadedAtUtc = x.UploadedAtUtc,
-                UploadedBy = x.UploadedByUser.Name
-            })
-            .FirstOrDefaultAsync();
+        var latestVersion = await _versionService.GetLatestVersion(documentId);
 
         if (latestVersion == null)
             return ApiResponse.NoVersionFound();
@@ -135,18 +111,7 @@ public class VersionsController : ApiControllerBase
             return error!;
         }
 
-        var version = await _context.Versions
-            .Include(x => x.UploadedByUser)
-            .Where(x => x.DocumentId == documentId && x.VersionNumber == versionNumber)
-            .Select(x => new DocumentVersionResponse
-            {
-                Id = x.Id,
-                DocumentId = x.DocumentId,
-                VersionNumber = x.VersionNumber,
-                UploadedAtUtc = x.UploadedAtUtc,
-                UploadedBy = x.UploadedByUser.Name
-            })
-            .FirstOrDefaultAsync();
+        var version = await _versionService.GetVersion(documentId, versionNumber);
 
         if (version == null)
             return ApiResponse.NoVersionFound();

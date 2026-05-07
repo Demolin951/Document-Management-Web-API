@@ -35,17 +35,7 @@ public class AccessController : ApiControllerBase
         if (!_accessService.IsOwner(accessResult.Access!))
             return ApiResponse.OnlyOwnerCanTransferOwnership();
 
-        var accesses = await _context.Accesses
-            .Include(x => x.User)
-            .Where(x => x.DocumentId == documentId)
-            .Select(x => new DocumentAccessResponse
-            {
-                DocumentId = x.DocumentId,
-                UserId = x.UserId,
-                UserName = x.User.Name,
-                Role = x.Role
-            })
-            .ToListAsync();
+        var accesses = await _accessService.GetAccesses(documentId);
 
         return Ok(accesses);
     }

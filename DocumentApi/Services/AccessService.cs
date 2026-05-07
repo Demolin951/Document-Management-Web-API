@@ -1,5 +1,6 @@
 using DocumentApi.Data;
 using DocumentApi.Models;
+using DocumentApi.Models.DTOs;
 using Microsoft.EntityFrameworkCore;
 
 namespace DocumentApi.Services;
@@ -59,5 +60,20 @@ public class AccessService
             User = user,
             Access = access
         };
+    }
+
+    public async Task<List<DocumentAccessResponse>> GetAccesses(int documentId)
+    {
+        return await _context.Accesses
+            .Include(x => x.User)
+            .Where(x => x.DocumentId == documentId)
+            .Select(x => new DocumentAccessResponse
+            {
+                DocumentId = x.DocumentId,
+                UserId = x.UserId,
+                UserName = x.User.Name,
+                Role = x.Role
+            })
+            .ToListAsync();
     }
 }
