@@ -101,11 +101,6 @@ public class DocumentController : ControllerBase
             .FirstOrDefaultAsync(x => x.DocumentId == docId.Value);
 
         if (access == null)
-        {
-            return StatusCode(403, "Access denied");
-        }
-
-        if (access == null)
             return StatusCode(403, "Access denied");
 
         var response = new DocumentResponse

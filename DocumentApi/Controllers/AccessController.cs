@@ -1,3 +1,4 @@
+using DocumentApi.Common;
 using DocumentApi.Data;
 using DocumentApi.Models;
 using DocumentApi.Models.DTOs;
@@ -10,7 +11,7 @@ namespace DocumentApi.Controllers;
 
 [ApiController]
 [Route("api/document")]
-public class AccessController : ControllerBase
+public class AccessController : ApiController
 {
     private readonly AppDbContext _context;
     private readonly AccessService _accessService;
@@ -25,14 +26,13 @@ public class AccessController : ControllerBase
     {
         var accessResult = await _accessService.CheckAccess(username, documentId);
 
-        if (!accessResult.UserExists)
-            return NotFound("User not found");
-
-        if (!accessResult.HasAccess)
-            return StatusCode(403, "Access denied");
+        if (TryGetAccessError(accessResult, out var error))
+        {
+            return error!;
+        }
 
         if (!_accessService.IsOwner(accessResult.Access!))
-            return StatusCode(403, "Only owner can view access list");
+            return ApiResponse.OnlyOwnerCanTransferOwnership();
 
         var accesses = await _context.Accesses
             .Include(x => x.User)
@@ -54,24 +54,23 @@ public class AccessController : ControllerBase
     {
         var ownerCheck = await _accessService.CheckAccess(request.UserName, documentId);
 
-        if (!ownerCheck.UserExists)
-            return NotFound("User not found");
-
-        if (!ownerCheck.HasAccess)
-            return StatusCode(403, "Access denied");
+        if (TryGetAccessError(ownerCheck, out var error))
+        {
+            return error!;
+        }
 
         if (!_accessService.IsOwner(ownerCheck.Access!))
-            return StatusCode(403, "Only owner can add access");
+            return ApiResponse.OnlyOwnerCanAddAccess();
 
         var targetUser = await _accessService.FindUserByUserName(request.TargetUserName);
 
         if (targetUser == null)
-            return NotFound("Target user not found");
+            return ApiResponse.TargetUserNotFound();
 
         var existingAccess = await _accessService.FindAccess(targetUser.Id, documentId);
 
         if (existingAccess != null)
-            return BadRequest("User already has access");
+            return ApiResponse.UserAlreadyHasAccess();
 
         var access = new DocumentAccess
         {
@@ -99,27 +98,26 @@ public class AccessController : ControllerBase
     {
         var ownerCheck = await _accessService.CheckAccess(request.UserName, documentId);
 
-        if (!ownerCheck.UserExists)
-            return NotFound("User not found");
-
-        if (!ownerCheck.HasAccess)
-            return StatusCode(403, "Access denied");
+        if (TryGetAccessError(ownerCheck, out var error))
+        {
+            return error!;
+        }
 
         if (!_accessService.IsOwner(ownerCheck.Access!))
-            return StatusCode(403, "Only owner can change roles");
+            return ApiResponse.OnlyOwnerCanChangeRole();
 
         var targetUser = await _accessService.FindUserByUserName(request.TargetUserName);
 
         if (targetUser == null)
-            return NotFound("Target user not found");
+            return ApiResponse.TargetUserNotFound();
 
         var targetAccess = await _accessService.FindAccess(targetUser.Id, documentId);
 
         if (targetAccess == null)
-            return NotFound("Target user has no access");
+            return ApiResponse.TargetUserHasNoAccess();
 
         if (targetAccess.Role == Role.Owner)
-            return BadRequest("Target user is already owner");
+            return ApiResponse.TargetUserIsAlreadyOwner();
 
         targetAccess.Role = request.Role;
 
@@ -142,27 +140,26 @@ public class AccessController : ControllerBase
     {
         var ownerCheck = await _accessService.CheckAccess(username, documentId);
 
-        if (!ownerCheck.UserExists)
-            return NotFound("User not found");
-
-        if (!ownerCheck.HasAccess)
-            return StatusCode(403, "Access denied");
+        if (TryGetAccessError(ownerCheck, out var error))
+        {
+            return error!;
+        }
 
         if (!_accessService.IsOwner(ownerCheck.Access!))
-            return StatusCode(403, "Only owner can delete access");
+            return ApiResponse.OnlyOwnerCanDeleteAccess();
 
         var targetUser = await _accessService.FindUserByUserName(targetUserName);
 
         if (targetUser == null)
-            return NotFound("Target user not found");
+            return ApiResponse.TargetUserNotFound();
 
         var targetAccess = await _accessService.FindAccess(targetUser.Id, documentId);
 
         if (targetAccess == null)
-            return NotFound("Target user has no access");
+            return ApiResponse.TargetUserHasNoAccess();
 
         if (targetAccess.Role == Role.Owner)
-            return BadRequest("Can not delete owner access");
+            return ApiResponse.CanNotDeleteOwnerAccess();
 
         _context.Accesses.Remove(targetAccess);
         await _context.SaveChangesAsync();
@@ -176,18 +173,18 @@ public class AccessController : ControllerBase
         var currentOwnerCheck = await _accessService.CheckAccess(request.CurrentOwnerUserName, documentId);
 
         if (!currentOwnerCheck.UserExists)
-            return NotFound("Current owner not found");
+            return ApiResponse.CurrentOwnerNotFound();
 
         if (!currentOwnerCheck.HasAccess)
-            return StatusCode(403, "Current user has no access");
+            return ApiResponse.CurrentUserHasNoAccess();
 
         if (!_accessService.IsOwner(currentOwnerCheck.Access!))
-            return StatusCode(403, "Only owner can trasfer ownership");
+            return ApiResponse.OnlyOwnerCanTransferOwnership();
 
         var newOwner = await _accessService.FindUserByUserName(request.NewOwnerUserName);
 
         if (newOwner == null)
-            return NotFound("New owner not found");
+            return ApiResponse.NewOwnerNotFound();
 
         var newOwnerAccess = await _accessService.FindAccess(newOwner.Id, documentId);
 
