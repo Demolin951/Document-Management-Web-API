@@ -1,23 +1,26 @@
 using DocumentApi.Data;
 using Microsoft.EntityFrameworkCore;
 using DocumentApi.Services;
+using System.Reflection;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
-// Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
 builder.Services.AddControllers();
 builder.Services.AddDbContext<AppDbContext>(options => options.UseSqlite("Data Source=documents.db"));
 builder.Services.AddScoped<AccessService>();
 builder.Services.AddScoped<VersionService>();
+builder.Services.AddSwaggerGen(options =>
+{
+    var xmlFIle = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
+    var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFIle);
+});
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
-    //app.MapOpenApi();
+
     app.UseSwaggerUI(options =>
 {
     options.SwaggerEndpoint("/openapi/v1.json", "v1");

@@ -1,12 +1,36 @@
+using System.Security.Cryptography.X509Certificates;
 using Microsoft.AspNetCore.Mvc;
 
 namespace DocumentApi.Common;
 
 public static class ApiResponse
 {
-    public static NotFoundObjectResult UserNotFound()
+    public static ObjectResult UserNotFound()
     {
-        return new NotFoundObjectResult(ErrorMessage.UserNotFound);
+        return new ObjectResult(new ProblemDetails
+        {
+            Type = "https://httpstatuses.com/404",
+            Title = "User not found",
+            Status = StatusCodes.Status404NotFound,
+            Detail = "The specified user does not exist."
+        })
+        {
+            StatusCode = StatusCodes.Status404NotFound
+        };
+    }
+
+    public static ObjectResult AccessDenied()
+    {
+        return new ObjectResult(new ProblemDetails
+        {
+            Type = "https://httpstatuses.com/403",
+            Title = "Access denied",
+            Status = StatusCodes.Status403Forbidden,
+            Detail = "The user has no access to this document."
+        })
+        {
+            StatusCode = StatusCodes.Status403Forbidden
+        };
     }
 
     public static NotFoundObjectResult CurrentOwnerNotFound()
@@ -39,15 +63,7 @@ public static class ApiResponse
         return new NotFoundObjectResult(ErrorMessage.TargetUserHasNoAccess);
     }
 
-    public static ObjectResult AccessDenied()
-    {
-        return new ObjectResult(ErrorMessage.AccessDenied)
-        {
-            StatusCode = 403
-        };
-    }
-
-        public static ObjectResult OnlyOwnerOrEditor()
+    public static ObjectResult OnlyOwnerOrEditor()
     {
         return new ObjectResult(ErrorMessage.OnlyOwnerOrEditor)
         {

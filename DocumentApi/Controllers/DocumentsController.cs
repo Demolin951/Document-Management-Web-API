@@ -6,7 +6,7 @@ using DocumentApi.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Data;
-
+using Microsoft.AspNetCore.Http;
 
 namespace DocumentApi.Controllers;
 
@@ -24,7 +24,7 @@ public class DocumentController : ControllerBase
 
     [HttpPost]
     [Consumes("multipart/form-data")]
-    public async Task<IActionResult> UploadDocument([FromForm] UploadDocumentRequest request)
+    public async Task<ActionResult<DocumentAccess>> UploadDocument([FromForm] UploadDocumentRequest request)
     {
         var user = await _accessService.FindUserByUserName(request.UserName);
 
@@ -69,11 +69,37 @@ public class DocumentController : ControllerBase
 
         await _context.SaveChangesAsync();
 
-        return Ok();
+        return Ok(access);
     }
 
+    /// <summary>
+    /// Gibt alle Dokumente zurück, auf die der angegebene Benutzer Zugriff hat.
+    /// </summary>
+    /// <param name="username">
+    /// Der Benutzername des Users, dessen Dokumentzugriffe abgefragt werden.
+    /// </param>
+    /// <param name="docId">
+    /// Optional: Filtert die Ergebnisse auf ein bestimmtes Dokument.
+    /// Wenn nicht angegeben, werden alle zugänglichen Dokumente zurückgegeben.
+    /// </param>
+    /// <returns>
+    /// Eine Liste von Dokumenten inklusive Metadaten und der jeweiligen Zugriffsrolle des Benutzers.
+    /// </returns>
+    /// <response code="200">
+    /// Dokument(e) erfolgreich gefunden.
+    /// </response>
+    /// <response code="403">
+    /// Der Benutzer hat keinen Zugriff auf das angeforderte Dokument.
+    /// </response>
+    /// <response code="404">
+    /// Der angegebene Benutzer wurde nicht gefunden.
+    /// </response>
     [HttpGet]
-    public async Task<IActionResult> GetDocuments([FromQuery] string username, [FromQuery] int? docId)
+    [Produces("application/json")]
+    [ProducesResponseType(typeof(List<DocumentResponse>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
+    public async Task<ActionResult<List<DocumentResponse>>> GetDocuments([FromQuery] string username, [FromQuery] int? docId)
     {
         var user = await _accessService.FindUserByUserName(username);
 
@@ -84,35 +110,25 @@ public class DocumentController : ControllerBase
             .Include(x => x.Document)
             .Where(x => x.UserId == user.Id);
 
-        if (docId == null)
+        if (docId != null)
         {
-            var documents = await query
-                .Select(x => new DocumentResponse
-                {
-                    Id = x.Document.Id,
-                    FileName = x.Document.FileName,
-                    CreatedAtUtc = x.Document.CreatedAtUtc,
-                    Role = x.Role.ToString()
-                })
-                .ToListAsync();
-            return Ok(documents);
+            query = query.Where(x => x.DocumentId == docId.Value);
         }
 
-        var access = await query
-            .FirstOrDefaultAsync(x => x.DocumentId == docId.Value);
+        var documents = await query
+                        .Select(x => new DocumentResponse
+                        {
+                            Id = x.Document.Id,
+                            FileName = x.Document.FileName,
+                            CreatedAtUtc = x.Document.CreatedAtUtc,
+                            Role = x.Role.ToString()
+                        })
+                        .ToListAsync();
 
-        if (access == null)
+        if (docId != null && documents.Count == 0)
             return ApiResponse.AccessDenied();
 
-        var response = new DocumentResponse
-        {
-            Id = access.DocumentId,
-            FileName = access.Document.FileName,
-            CreatedAtUtc = access.Document.CreatedAtUtc,
-            Role = access.Role.ToString()
-        };
-
-        return Ok(response);
+        return Ok(documents);
     }
 
 }
