@@ -184,3 +184,4 @@ C:\.Net10 WEB API\DocumentApi\bin\Debug\net10.0\Swashbuckle.AspNetCore.Swagger.d
 C:\.Net10 WEB API\DocumentApi\bin\Debug\net10.0\Swashbuckle.AspNetCore.SwaggerGen.dll
 C:\.Net10 WEB API\DocumentApi\bin\Debug\net10.0\DocumentApi.xml
 C:\.Net10 WEB API\DocumentApi\obj\Debug\net10.0\DocumentApi.xml
+C:\.Net10 WEB API\DocumentApi\obj\Debug\net10.0\DocumentApi.sourcelink.json

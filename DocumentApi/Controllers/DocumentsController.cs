@@ -99,7 +99,7 @@ public class DocumentController : ControllerBase
     [ProducesResponseType(typeof(List<DocumentResponse>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status403Forbidden)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
-    public async Task<ActionResult<List<DocumentResponse>>> GetDocuments([FromQuery] string username, [FromQuery] int? docId)
+    public async Task<ActionResult> GetDocuments([FromQuery] string username, [FromQuery] int? docId)
     {
         var user = await _accessService.FindUserByUserName(username);
 

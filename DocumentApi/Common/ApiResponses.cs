@@ -9,7 +9,7 @@ public static class ApiResponse
     {
         return new ObjectResult(new ProblemDetails
         {
-            Type = "https://httpstatuses.com/404",
+            Type = "/api/errors/user-not-found",
             Title = "User not found",
             Status = StatusCodes.Status404NotFound,
             Detail = "The specified user does not exist."
@@ -23,10 +23,24 @@ public static class ApiResponse
     {
         return new ObjectResult(new ProblemDetails
         {
-            Type = "https://httpstatuses.com/403",
+            Type = "/api/errors/access-denied",
             Title = "Access denied",
             Status = StatusCodes.Status403Forbidden,
             Detail = "The user has no access to this document."
+        })
+        {
+            StatusCode = StatusCodes.Status403Forbidden
+        };
+    }
+
+    public static ObjectResult FileRequired()
+    {
+        return new ObjectResult(new ProblemDetails
+        {
+            Type = "/api/errors/file-required",
+            Title = "Access denied",
+            Status = StatusCodes.Status403Forbidden,
+            Detail = "A file must be provided in the request"
         })
         {
             StatusCode = StatusCodes.Status403Forbidden
