@@ -116,14 +116,22 @@ public class DocumentController : ControllerBase
         }
 
         var documents = await query
-                        .Select(x => new DocumentResponse
-                        {
-                            Id = x.Document.Id,
-                            FileName = x.Document.FileName,
-                            CreatedAtUtc = x.Document.CreatedAtUtc,
-                            Role = x.Role.ToString()
-                        })
-                        .ToListAsync();
+            .Select(x => new DocumentResponse
+            {
+                Id = x.Document.Id,
+                FileName = x.Document.FileName,
+
+                Owner = _context.Accesses
+                .Where(ownerAccess =>
+                    ownerAccess.DocumentId == x.Document.Id &&
+                    ownerAccess.Role == Role.Owner)
+                .Select(ownerAccess => ownerAccess.User.Name)
+                .FirstOrDefault() ?? string.Empty,
+
+                CreatedAtUtc = x.Document.CreatedAtUtc,
+                Role = x.Role.ToString()
+            })
+            .ToListAsync();
 
         if (docId != null && documents.Count == 0)
             return ApiResponse.AccessDenied();
