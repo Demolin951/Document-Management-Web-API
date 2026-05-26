@@ -139,4 +139,55 @@ public class DocumentController : ControllerBase
         return Ok(documents);
     }
 
+    /// <summary>
+    /// Löscht ein Dokument.
+    /// Nur der Owner darf ein Dokument löschen.
+    /// </summary>
+    /// <param name="id">Die ID des Dokuments.</param>
+    /// <param name="username">Der Benutzername des aktuellen Benutzers.</param>
+    /// <returns>204 No Content, wenn das Dokument erfolgreich gelöscht wurde.</returns>
+    /// <response code="204">Dokument erfolgreich gelöscht.</response>
+    /// <response code="403">Der Benutzer hat keine Berechtigung, dieses Dokument zu löschen.</response>
+    /// <response code="404">Benutzer oder Dokument wurde nicht gefunden.</response>
+
+    [HttpDelete("{id:int}")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> DeleteDocument(
+        [FromRoute] int id,
+        [FromQuery] string username)
+    {
+
+        var user = await _accessService.FindUserByUserName(username);
+
+        if (user == null)
+
+            return ApiResponse.UserNotFound();
+
+        var document = await _context.Documents
+            .FirstOrDefaultAsync(x => x.Id == id);
+
+        if (document == null)
+
+            return ApiResponse.DocumentNotFound();
+
+        var access = await _accessService.FindAccess(user.Id, id);
+
+        if (access == null)
+
+            return ApiResponse.AccessDenied();
+
+        if (!_accessService.IsOwner(access))
+
+            return ApiResponse.Forbidden("Only the owner can delete documents.");
+
+        _context.Documents.Remove(document);
+
+        await _context.SaveChangesAsync();
+
+        return NoContent();
+
+    }
 }
+
