@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using DocumentApi.Models.DTOs;
 using DocumentApi.Common;
+using Utils;
 
 namespace DocumentApi.Controllers;
 
@@ -26,8 +27,17 @@ public class UserController : ControllerBase
     }
 
     [HttpPost("create")]
-    public async Task<ActionResult<User>> CreateUser([FromBody] CreateUserRequest request)
+    public async Task<ActionResult<User>> CreateUser([FromQuery] string currentUsername, [FromBody] CreateUserRequest request)
     {
+        if (!UtilFunktion.IsAdmin(currentUsername))
+        {
+            return StatusCode(StatusCodes.Status403Forbidden, new
+            {
+                title = "Forbidden",
+                detail = "Only admin can manage users"
+            });
+        }
+
         var user = new User
         {
             Name = request.UserName,
@@ -40,8 +50,17 @@ public class UserController : ControllerBase
     }
 
     [HttpDelete("delete/{id:int}")]
-    public async Task<ActionResult> DeleteUser(int id)
+    public async Task<ActionResult> DeleteUser([FromRoute] int id, [FromQuery] string currentUsername)
     {
+        if (!UtilFunktion.IsAdmin(currentUsername))
+        {
+            return StatusCode(StatusCodes.Status403Forbidden, new
+            {
+                title = "Forbidden",
+                detail = "Only admin can manage users"
+            });
+        }
+
         var user = await _context.Users.FindAsync(id);
 
         if (user is null)

@@ -52,10 +52,7 @@ public class AppDbContext : DbContext
             .IsUnique();
 
         modelBuilder.Entity<User>().HasData(
-            new User { Id = 1, Name = "max" },
-            new User { Id = 2, Name = "anna" },
-            new User { Id = 3, Name = "tim" },
-            new User { Id = 4, Name = "bob" }
+            new User { Id = 1, Name = "admin" }
         );
     }
 }
